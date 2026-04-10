@@ -5,9 +5,16 @@ import { Button } from "@/components/ui/button";
 interface VoiceInputProps {
   onTranscript: (text: string) => void;
   transcript: string;
+  language?: string;
 }
 
-export function VoiceInput({ onTranscript, transcript }: VoiceInputProps) {
+const LANG_LABELS: Record<string, string> = {
+  "en-US": "English",
+  "kn-IN": "ಕನ್ನಡ",
+  "te-IN": "తెలుగు",
+};
+
+export function VoiceInput({ onTranscript, transcript, language = "en-US" }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +30,7 @@ export function VoiceInput({ onTranscript, transcript }: VoiceInputProps) {
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = "en-US";
+    recognition.lang = language;
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -46,7 +53,9 @@ export function VoiceInput({ onTranscript, transcript }: VoiceInputProps) {
     };
 
     recognition.start();
-  }, [onTranscript]);
+  }, [onTranscript, language]);
+
+  const langLabel = LANG_LABELS[language] || language;
 
   return (
     <div className="w-full">
@@ -60,12 +69,12 @@ export function VoiceInput({ onTranscript, transcript }: VoiceInputProps) {
           {isListening ? (
             <>
               <MicOff className="w-4 h-4 animate-pulse" />
-              Listening...
+              Listening ({langLabel})...
             </>
           ) : (
             <>
               <Mic className="w-4 h-4" />
-              Speak About Your Crop
+              Speak in {langLabel}
             </>
           )}
         </Button>
